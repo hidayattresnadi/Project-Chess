@@ -1,4 +1,7 @@
-public class Board :IBoard
+///<summary>
+///Class to save board condition while the game is playing. It shows the list of pieces which are at board
+/// </summary>
+public class Board : IBoard
 {
     // di board bakal ada 64 kotak yang akan diisi piece, termasuk null piece, di bawah merupakan inisialisasi
     private readonly Piece[,] _piecesOnBoard = new Piece[8, 8];
@@ -21,76 +24,135 @@ public class Board :IBoard
         get { return _piecesOnBoard[Row, col]; }
         set { _piecesOnBoard[Row, col] = value; }
     }
-    public Location Location {get;set;}
-    // {
-    //     public int Row { get; }
-    //     public int Column { get; }
-
-    //     public Location(int column, int row)
-    //     {
-    //         Column = column;
-    //         Row = row;
-    //     }
-    // }
-    // +Board(int size)
-    // +Board(int rows, int columns)
-    // +GetBoardInfo() : Piece[,]
-    // +AssignPiecesToLocations(Piece[], Location[]) : Piece[,]
-    public bool MovePieceToLocation(Piece newPiece, int col, int row, Location currentLocation)
+    public Location Location { get; set; }
+    ///<summary>
+    ///method with 5 parameters and check if player's move is valid or not based on the position of the piece.
+    /// </summary>
+    ///<param name="newPiece">
+    ///Piece which player wants to move 
+    /// </param>
+    ///<param name="col">
+    ///int column which player wants the piece move to that column 
+    /// </param>
+    ///<param name="row">
+    ///int row which player wants the piece move to that row 
+    /// </param>
+    ///<param name="currentLocation">
+    ///Location of the piece at the board now 
+    /// </param>
+    ///<param name="checkMate">
+    ///CheckMate there is an additional valid moves if status chekmate is check 
+    /// </param>
+    /// <returns>
+    /// bool by checking the newLocation from player input at parameter col and row
+    /// </returns>
+    public bool MovePieceToLocation(Piece newPiece, int col, int row, Location currentLocation, CheckMate checkMate)
     {
         bool isValidMove = false;
-        if(newPiece!=null){
-            var validMoves = newPiece.SearchValidLocations(currentLocation, 25, this);
-        foreach (var item in validMoves)
+        if (newPiece != null)
         {
-            if (validMoves.Count != 0)
+            var validMoves = newPiece.SearchValidLocations(currentLocation, checkMate, this);
+            foreach (var item in validMoves)
             {
-                if (item.Column == col && item.Row == row)
+                if (validMoves.Count != 0)
                 {
-                    isValidMove = true;
-                    //   _piecesOnBoard[row, col] = newPiece;
-                    newPiece._hasMoved = true;
+                    if (item.Column == col && item.Row == row)
+                    {
+                        isValidMove = true;
+                        //   _piecesOnBoard[row, col] = newPiece;
+                        newPiece.HasMoved = true;
+                    }
                 }
             }
-
-        }
         }
         return isValidMove;
     }
+    ///<summary>
+    ///method with 5 parameters and check if player's move is valid or not based on the position of the piece.
+    /// </summary>
+    ///<param name="newPiece">
+    ///Piece which player wants to move 
+    /// </param>
+    ///<param name="newLocation">
+    ///Location which player wants the piece move to location 
+    /// </param>
+    ///<param name="currentLocation">
+    ///Location of the piece at the board now 
+    /// </param>
+    ///<param name="checkMate">
+    ///CheckMate there is an additional valid moves if status chekmate is check 
+    /// </param>
+    /// <returns>
+    /// bool by checking the newLocation from player input at parameter col and row
+    /// </returns>
 
-    public bool MovePieceToLocation(Piece newPiece, Location newLocation, Location currentLocation)
+    public bool MovePieceToLocation(Piece newPiece, Location newLocation, Location currentLocation, CheckMate checkMate)
     {
         bool isValidMove = false;
-        var validMoves = newPiece.SearchValidLocations(currentLocation, 25, this);
-        foreach (var item in validMoves)
+        if (newPiece != null)
         {
-            if (item.Column == newLocation.Column && item.Row == newLocation.Row)
+            var validMoves = newPiece.SearchValidLocations(currentLocation, checkMate, this);
+            foreach (var item in validMoves)
             {
-                isValidMove = true;
-                newPiece._hasMoved = true;
+                if (item.Column == newLocation.Column && item.Row == newLocation.Row)
+                {
+                    isValidMove = true;
+                    newPiece.HasMoved = true;
+                }
             }
         }
         return isValidMove;
     }
+    ///<summary>
+    ///method with 2 parameters to set board coordinate with piece from the same board.
+    /// </summary>
+    ///<param name="piece">
+    ///Piece which player wants to move 
+    /// </param>
+    ///<param name="location">
+    ///Location which player wants the piece move to location 
+    /// </param>
+    /// <returns>
+    /// Piece with new location at the board
+    /// </returns>
     public Piece[,] AssignPiecesToLocations(Piece piece, Location location)
     {
         _piecesOnBoard[location.Row, location.Column] = piece;
         Piece[,] boardInfo = new Piece[location.Row, location.Column];
         return boardInfo;
     }
-    // +MovePieceToLocation(Piece newPiece, int row, int column) : bool
+    ///<summary>
+    ///method with 2 parameters to remove piece which has been set before.
+    ///</summary>
+    ///<param name="row">
+    ///int row which before piece is put at 
+    /// </param>
+    ///<param name="column">
+    ///int column which before piece is put at  
+    /// </param>
+    /// <returns>
+    /// bool when the process success
+    /// </returns>
     public bool RemovePieceFromLocation(int row, int col)
     {
         _piecesOnBoard[row, col] = null;
         return true;
     }
+    ///<summary>
+    ///method with 2 parameters to remove piece which has been set before.
+    ///</summary>
+    ///<param name="location">
+    ///Location which before piece is put at 
+    /// </param>
+    /// <returns>
+    /// bool if the process success
+    /// </returns>
 
     public bool RemovePieceFromLocation(Location location)
     {
         _piecesOnBoard[location.Row, location.Column] = null;
         return true;
     }
-    // +RemovePieceFromLocation(int row, int column) : bool
 }
 
 public class Location

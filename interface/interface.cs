@@ -6,7 +6,7 @@ public interface IPlayer
 public interface IBoard
 {
     public Piece this[int Row, int col]{get;set;}
-    public bool MovePieceToLocation(Piece newPiece, int col, int row, Location currentLocation);
+    public bool MovePieceToLocation(Piece newPiece, int col, int row, Location currentLocation,CheckMate checkMate);
     public Piece[,] AssignPiecesToLocations(Piece piece, Location location);
     public bool RemovePieceFromLocation(int row, int col);
     public Location Location {get;set;}

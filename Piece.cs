@@ -1,34 +1,49 @@
+///<summary>
+///Class for player to play the game by moving this piece at the board. The winner will be determined based on condition of this class
+///Player will play the piece when the game starts
+/// </summary>
 public abstract class Piece
 {
-    public int _id {get;set;}
+    public int Id {get;set;}
     protected static int _nextId = 1;
-    public Colour _pieceColour { get; set; }
-    public Type _pieceType { get; set; }
-    public bool _hasMoved { get; set; } = false;
+    public Colour PieceColour { get; set; }
+    public Type PieceType { get; set; }
+    public bool HasMoved { get; set; } = false;
 
-    // public int row {get;set;}
-
-    // public int col {get;set;}
-
-    public abstract List<Location> SearchValidLocations(Location current, int boardSize, IBoard board);
+    public abstract List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board);
 }
 
 public class Pawn : Piece
 {
     public Pawn(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-        this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of pawn.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the pawn piece now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from pawn piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
         List<Location> validLocations = new();
-        int direction = _pieceColour == Colour.BLACK ? 1 : -1;
-        int nextRank = _hasMoved == true ?  (direction * 1) + current.Row : (direction * 2) + current.Row;
-        if (nextRank >= 0 && nextRank <= 8)
+        int direction = PieceColour == Colour.BLACK ? 1 : -1;
+        int nextRank = HasMoved == true ?  (direction * 1) + current.Row : (direction * 2) + current.Row;
+        if (nextRank >= 0 && nextRank < board.Columns)
         {
-            if (_hasMoved == false)
+            if (HasMoved == false)
             {
                 Location location2 = new(nextRank, current.Column);
                 Piece pieceNotMoved = board[location2.Row, location2.Column];
@@ -37,10 +52,10 @@ public class Pawn : Piece
                     validLocations.Add(location2);
                 }
             }
-            if (current.Column + 1 <= 7)
+            if (current.Column + 1 < board.Columns)
             {
                 Piece pieceEaten = board[nextRank, current.Column + 1];
-                if (pieceEaten != null && pieceEaten._pieceColour != _pieceColour)
+                if (pieceEaten != null && pieceEaten.PieceColour != PieceColour)
                 {
                     Location location3 = new(nextRank, current.Column + 1);
                     validLocations.Add(location3);
@@ -49,7 +64,7 @@ public class Pawn : Piece
             if (current.Column - 1 >= 0)
             {
                 Piece pieceEaten2 = board[nextRank, current.Column - 1];
-                if (pieceEaten2 != null && pieceEaten2._pieceColour != _pieceColour)
+                if (pieceEaten2 != null && pieceEaten2.PieceColour != PieceColour)
                 {
                     Location location4 = new(nextRank, current.Column - 1);
                     validLocations.Add(location4);
@@ -72,14 +87,28 @@ public class Rook : Piece
 {
     public Rook(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-         this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of rook.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the rook piece now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from rook piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
-        // Console.WriteLine("lplplp");
-        // Console.WriteLine("benteng1");
+        Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
         for (int i = current.Row - 1; i >= 0; i--)
         {
@@ -91,15 +120,24 @@ public class Rook : Piece
             }
             else
             {
-                if (board[i, current.Column]._pieceColour != _pieceColour)
+                if (board[i, current.Column].PieceColour != PieceColour)
                 {
                     Location location2 = new(i, current.Column);
                     validLocations.Add(location2);
                 }
+                if (board[i, current.Column].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(current.Row, i);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i,current.Column].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
                 break;
             }
         }
-        for (int i = current.Row + 1; i < 8; i++)
+        for (int i = current.Row + 1; i < board.Rows; i++)
         {
             // gerakan ke bawah
             if (board[i, current.Column] == null)
@@ -109,16 +147,24 @@ public class Rook : Piece
             }
             else
             {
-                if (board[i, current.Column]._pieceColour != _pieceColour)
+                if (board[i, current.Column].PieceColour != PieceColour)
                 {
                     Location location2 = new(i, current.Column);
                     validLocations.Add(location2);
                 }
+                if (board[i, current.Column].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(current.Row, i);
+                    validLocations.Add(location2);
+                }
 
+                if(board[i,current.Column].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
                 break;
             }
         }
-        for (int i = current.Column + 1; i < 8; i++)
+        for (int i = current.Column + 1; i < board.Columns; i++)
         {
             // gerakan ke kanan
             if (board[current.Row, i] == null)
@@ -128,15 +174,20 @@ public class Rook : Piece
             }
             else
             {
-                if (board[current.Row, i]._pieceColour != _pieceColour)
+                if (board[current.Row, i].PieceColour != PieceColour)
+                {
+                    Location location2 = new(current.Row, i);
+                    validLocations.Add(location2);
+                }
+                if (board[current.Row, i].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
                 {
                     Location location2 = new(current.Row, i);
                     validLocations.Add(location2);
                 }
 
-                // if(board[current.Row,i]._pieceType==Type.KING){
-                //     continue;
-                // }
+                if(board[current.Row,i].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
                 break;
             }
         }
@@ -150,18 +201,24 @@ public class Rook : Piece
             }
             else
             {
-                if (board[current.Row, i]._pieceColour != _pieceColour)
+                if (board[current.Row, i].PieceColour != PieceColour)
+                {
+                    Location location2 = new(current.Row, i);
+                    validLocations.Add(location2);
+                }
+                if (board[current.Row, i].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
                 {
                     Location location2 = new(current.Row, i);
                     validLocations.Add(location2);
                 }
 
+                if(board[current.Row,i].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
         }
-        // Console.WriteLine("punya benteng");
-        // Console.WriteLine("punya benteng");
-        // Console.WriteLine(validLocations);
         return validLocations;
     }
 }
@@ -170,31 +227,56 @@ public class Bishop : Piece
 {
     public Bishop(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-        this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of bishop.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the bishop piece now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from bishop piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
+        Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
         // gerakan ke atas kanan (NorthEast)
         int i = current.Row - 1;
         int j = current.Column + 1;
-        while (i >= 0 && j < 8)
+        while (i >= 0 && j < board.Columns)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i,j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i--;
@@ -210,14 +292,23 @@ public class Bishop : Piece
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i,j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i--;
@@ -226,21 +317,30 @@ public class Bishop : Piece
         // gerakan ke bawah kanan south east
         i = current.Row + 1;
         j = current.Column + 1;
-        while (i < 8 && j < 8)
+        while (i < board.Rows && j < board.Columns)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
+           else
             {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
-            else
-            {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i++;
@@ -249,21 +349,30 @@ public class Bishop : Piece
         // gerakan ke bawah kiri south west
         i = current.Row + 1;
         j = current.Column - 1;
-        while (i < 8 && j >= 0)
+        while (i < board.Rows && j >= 0)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
+           else
             {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
-            else
-            {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i,j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i,j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i++;
@@ -277,12 +386,28 @@ public class Knight : Piece
 {
     public Knight(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-        this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of knight.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the pawn knight now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from knight piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
+        Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
 
         int[,] knightMoves = {
@@ -294,14 +419,19 @@ public class Knight : Piece
         {
             int newRow = current.Row + knightMoves[i, 0];
             int newCol = current.Column + knightMoves[i, 1];
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8)
+            if (newRow >= 0 && newRow < board.Rows && newCol >= 0 && newCol < board.Columns)
             {
                 if (board[newRow, newCol] == null)
                 {
                     Location location = new(newRow, newCol);
                     validLocations.Add(location);
                 }
-                else if (board[newRow, newCol]._pieceColour != _pieceColour)
+                else if (board[newRow, newCol].PieceColour != PieceColour)
+                {
+                    Location location2 = new(newRow, newCol);
+                    validLocations.Add(location2);
+                }
+                else if (board[newRow, newCol].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
                 {
                     Location location2 = new(newRow, newCol);
                     validLocations.Add(location2);
@@ -316,13 +446,28 @@ public class King : Piece
 {
     public King(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-        this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of king.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the king piece now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from king piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
-        // Console.WriteLine("wkkwkw");
+        Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
         int[] rowMoves = { -1, -1, -1, 0, 0, 1, 1, 1 };
         int[] colMoves = { -1, 0, 1, -1, 1, -1, 0, 1 };
@@ -331,18 +476,23 @@ public class King : Piece
             int newRow = current.Row + rowMoves[i];
             int newCol = current.Column + colMoves[i];
 
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8)
+            if (newRow >= 0 && newRow < board.Rows && newCol >= 0 && newCol < board.Columns)
             {
                 if (board[newRow, newCol] == null)
                 {
                     Location location = new(newRow, newCol);
                     validLocations.Add(location);
                 }
-                else if (board[newRow, newCol]._pieceColour != _pieceColour)
+                else if (board[newRow, newCol].PieceColour != PieceColour)
                 {
                     Location location2 = new(newRow, newCol);
                     validLocations.Add(location2);
                 }
+                // else if (board[newRow, newCol].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                // {
+                //     Location location2 = new(newRow, newCol);
+                //     validLocations.Add(location2);
+                // }
             }
         }
         return validLocations;
@@ -353,32 +503,57 @@ public class Queen : Piece
 {
     public Queen(Colour colour, Type type)
     {
-        this._pieceColour = colour;
-        this._pieceType = type;
-        this._id=_nextId++;
+        this.PieceColour = colour;
+        this.PieceType = type;
+        this.Id=_nextId++;
     }
-    public override List<Location> SearchValidLocations(Location current, int boardSize, IBoard board)
+    ///<summary>
+    ///method with 3 parameter to generate valid moves of queen.
+    /// </summary>
+    ///<param name="current">
+    ///Location of the queen piece now
+    /// </param>
+    ///<param name="checkmate">
+    ///Checkmate condition of checkmate status at the game
+    /// </param>
+    ///<param name="board">
+    ///Board condition at game
+    /// </param>
+    /// <returns>
+    /// List of Location valid moves from queen piece
+    /// </returns>
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
     {
+        Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         // Console.WriteLine("masuk");
         List<Location> validLocations = new();
         // gerakan ke atas kanan (NorthEast)
         int i = current.Row - 1;
         int j = current.Column + 1;
-        while (i >= 0 && j < 8)
+        while (i >= 0 && j < board.Columns)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i--;
@@ -394,14 +569,23 @@ public class Queen : Piece
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i--;
@@ -410,21 +594,30 @@ public class Queen : Piece
         // gerakan ke bawah kanan south east
         i = current.Row + 1;
         j = current.Column + 1;
-        while (i < 8 && j < 8)
+        while (i < board.Rows && j < board.Columns)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i++;
@@ -433,21 +626,30 @@ public class Queen : Piece
         // gerakan ke bawah kiri south west
         i = current.Row + 1;
         j = current.Column - 1;
-        while (i < 8 && j >= 0)
+        while (i < board.Rows && j >= 0)
         {
             if (board[i, j] == null)
             {
                 Location location = new(i, j);
                 validLocations.Add(location);
             }
-            else if (board[i, j]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(i, j);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[i, j].PieceColour != PieceColour)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+                if (board[i, j].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(i, j);
+                    validLocations.Add(location2);
+                }
+
+                if(board[i, j].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
             i++;
@@ -461,18 +663,27 @@ public class Queen : Piece
                 Location location = new(k, current.Column);
                 validLocations.Add(location);
             }
-            else if (board[k, current.Column]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(k, current.Column);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[k, current.Column].PieceColour != PieceColour)
+                {
+                    Location location2 = new(k, current.Column);
+                    validLocations.Add(location2);
+                }
+                if (board[k, current.Column].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(k, current.Column);
+                    validLocations.Add(location2);
+                }
+
+                if(board[k, current.Column].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
         }
-        for (int k = current.Row + 1; k < 8; k++)
+        for (int k = current.Row + 1; k < board.Rows; k++)
         {
             // gerakan ke bawah
             if (board[k, current.Column] == null)
@@ -480,18 +691,27 @@ public class Queen : Piece
                 Location location = new(k, current.Column);
                 validLocations.Add(location);
             }
-            else if (board[k, current.Column]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(k, current.Column);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[k, current.Column].PieceColour != PieceColour)
+                {
+                    Location location2 = new(k, current.Column);
+                    validLocations.Add(location2);
+                }
+                if (board[k, current.Column].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(k, current.Column);
+                    validLocations.Add(location2);
+                }
+
+                if(board[k, current.Column].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
         }
-        for (int k = current.Column + 1; k < 8; k++)
+        for (int k = current.Column + 1; k < board.Columns; k++)
         {
             // gerakan ke kanan
             if (board[current.Row, k] == null)
@@ -499,17 +719,23 @@ public class Queen : Piece
                 Location location = new(current.Row, k);
                 validLocations.Add(location);
             }
-            else if (board[current.Row, k]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(current.Row, k);
-                validLocations.Add(location2);
-                if(board[current.Row,k]._pieceType==Type.KING){
-                    continue;
-                }
-                break;
-            }
             else
             {
+                if (board[current.Row, k].PieceColour != PieceColour)
+                {
+                    Location location2 = new(current.Row, k);
+                    validLocations.Add(location2);
+                }
+                if (board[current.Row, k].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(current.Row, k);
+                    validLocations.Add(location2);
+                }
+
+                if(board[current.Row,k].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
         }
@@ -521,14 +747,23 @@ public class Queen : Piece
                 Location location = new(current.Row, k);
                 validLocations.Add(location);
             }
-            else if (board[current.Row, k]._pieceColour != _pieceColour)
-            {
-                Location location2 = new(current.Row, k);
-                validLocations.Add(location2);
-                break;
-            }
             else
             {
+                if (board[current.Row, k].PieceColour != PieceColour)
+                {
+                    Location location2 = new(current.Row, k);
+                    validLocations.Add(location2);
+                }
+                if (board[current.Row, k].PieceColour == PieceColour && checkmate==CheckMate.CHECK)
+                {
+                    Location location2 = new(current.Row, k);
+                    validLocations.Add(location2);
+                }
+
+                if(board[current.Row,k].PieceType==Type.KING && checkmate==CheckMate.CHECK){
+                    continue;
+                }
+
                 break;
             }
         }

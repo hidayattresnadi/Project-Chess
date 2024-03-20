@@ -1,6 +1,8 @@
 // namespace Players;
 
-
+///<summary>
+///Class to show the player who plays the game
+/// </summary>
 public abstract class Player : IPlayer
 {
     public string Name { get; }
