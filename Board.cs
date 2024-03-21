@@ -165,4 +165,8 @@ public class Location
         this.Row = Row;
         this.Column = Column;
     }
+    public Location()
+    {
+        
+    }
 }

@@ -64,7 +64,7 @@ class GameController
         // }
         if (CheckMate == CheckMate.CHECK)
         {
-            foreach (var item in currentPlayerPieces)
+            foreach (var item in opponentPieces)
             {
                 if (item.Key.PieceType != Type.KING)
                 {
@@ -86,31 +86,29 @@ class GameController
                 }
             }
 
-            foreach (var item in opponentPieces)
+            foreach (var item in currentPlayerPieces)
             {
-                var opponentPiecesMoves = item.Key.SearchValidLocations(new Location(item.Value.Row, item.Value.Column), CheckMate, Board);
-                foreach (var opponentValidMove in opponentPiecesMoves)
+                var currentPlayerPiecesMoves = item.Key.SearchValidLocations(new Location(item.Value.Row, item.Value.Column), CheckMate, Board);
+                foreach (var currentPlayerValidMove in currentPlayerPiecesMoves)
                 {
                     foreach (var locationKingPlayer in kingPlayer)
                     {
-                        if (opponentValidMove.Column == locationKingPlayer.Column && opponentValidMove.Row == locationKingPlayer.Row)
+                        if (currentPlayerValidMove.Column == locationKingPlayer.Column && currentPlayerValidMove.Row == locationKingPlayer.Row)
                         {
-                            if (!playerThreatKing.Any(loc => loc.Row == opponentValidMove.Row && loc.Column == opponentValidMove.Column))
+                            if (!playerThreatKing.Any(loc => loc.Row == currentPlayerValidMove.Row && loc.Column == currentPlayerValidMove.Column))
                             {
-                                playerThreatKing.Add(new Location(opponentValidMove.Row, opponentValidMove.Column));
+                                playerThreatKing.Add(new Location(currentPlayerValidMove.Row, currentPlayerValidMove.Column));
                             }
                         }
                     }
                 }
             }
-            if (playerThreatKing.Count == kingPlayer.Count() && countProtectKing == 0)
+            if (playerThreatKing.Count == kingPlayer.Count && countProtectKing == 0)
             {
                 CheckMate = CheckMate.CHECKMATE;
                 GameStatus = GameStatus.END;
             }
         }
-        // Console.WriteLine(kingPlayer.Count);
-        // Console.WriteLine(playerThreatKing.Count);
         return CheckMate;
     }
 
@@ -188,14 +186,14 @@ class GameController
         Dictionary<Piece, Location> dictP2 = new Dictionary<Piece, Location>();
         if (_players[p1].PlayerColour == Colour.BLACK)
         {
-            // dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 0));
-            // dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 1));
-            // dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 2));
-            // dictP1.Add(new Queen(Colour.BLACK, Type.QUEEN), new Location(0, 3));
+            dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 0));
+            dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 1));
+            dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 2));
+            dictP1.Add(new Queen(Colour.BLACK, Type.QUEEN), new Location(0, 3));
             dictP1.Add(new King(Colour.BLACK, Type.KING), new Location(0, 4));
-            // dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 5));
-            // dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 6));
-            // dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 7));
+            dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 5));
+            dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 6));
+            dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 7));
         }
         else
         {
@@ -219,7 +217,7 @@ class GameController
             dictP2.Add(new King(Colour.WHITE, Type.KING), new Location(7, 4));
             dictP2.Add(new Bishop(Colour.WHITE, Type.BISHOP), new Location(7, 5));
             dictP2.Add(new Knight(Colour.WHITE, Type.KNIGHT), new Location(7, 6));
-            // dictP2.Add(new Rook(Colour.WHITE, Type.ROOK), new Location(7, 7));
+            dictP2.Add(new Rook(Colour.WHITE, Type.ROOK), new Location(7, 7));
         }
         else
         {
@@ -234,25 +232,25 @@ class GameController
         }
 
 
-        // for (int i = 0; i < 8; i++)
-        // {
-        //     if (_players[p1].PlayerColour == Colour.BLACK)
-        //     {
-        //         dictP1.Add(new Pawn(Colour.BLACK, Type.PAWN), new Location(1, i));
-        //     }
-        //     if (_players[p1].PlayerColour == Colour.WHITE)
-        //     {
-        //         dictP1.Add(new Pawn(Colour.WHITE, Type.PAWN), new Location(6, i));
-        //     }
-        //     if (_players[p2].PlayerColour == Colour.BLACK)
-        //     {
-        //         dictP2.Add(new Pawn(Colour.BLACK, Type.PAWN), new Location(1, i));
-        //     }
-        //     if (_players[p2].PlayerColour == Colour.WHITE)
-        //     {
-        //         dictP2.Add(new Pawn(Colour.WHITE, Type.PAWN), new Location(6, i));
-        //     }
-        // }
+        for (int i = 0; i < 8; i++)
+        {
+            if (_players[p1].PlayerColour == Colour.BLACK)
+            {
+                dictP1.Add(new Pawn(Colour.BLACK, Type.PAWN), new Location(1, i));
+            }
+            if (_players[p1].PlayerColour == Colour.WHITE)
+            {
+                dictP1.Add(new Pawn(Colour.WHITE, Type.PAWN), new Location(6, i));
+            }
+            if (_players[p2].PlayerColour == Colour.BLACK)
+            {
+                dictP2.Add(new Pawn(Colour.BLACK, Type.PAWN), new Location(1, i));
+            }
+            if (_players[p2].PlayerColour == Colour.WHITE)
+            {
+                dictP2.Add(new Pawn(Colour.WHITE, Type.PAWN), new Location(6, i));
+            }
+        }
 
         Dictionary<IPlayer, IDictionary<Piece, Location>> playerPieces = new Dictionary<IPlayer, IDictionary<Piece, Location>>();
         playerPieces.Add(p1, dictP1);
@@ -448,8 +446,7 @@ class GameController
                 }
 
                 Board.AssignPiecesToLocations(piece, new Location(row, col));
-                _players[player].PlayerPieces[piece].Column = col;
-                _players[player].PlayerPieces[piece].Row = row;
+                _players[player]!.PlayerPieces[piece] = new Location(row, col);
 
                 Board.RemovePieceFromLocation(currentLocation.Row, currentLocation.Column);
                 foreach (var item in _players)
@@ -474,17 +471,6 @@ class GameController
                         CheckMate = CheckMate.NONE;
                     }
                 }
-                foreach (var nextPlayer in _players)
-                {
-                    if (nextPlayer.Key != player)
-                    {
-                        NextTurn(nextPlayer.Key);
-                    }
-                    else
-                    {
-                        NextTurnOpponent(nextPlayer.Key);
-                    }
-                }
                 ValidMove = ValidMove.VALIDMOVE;
                 // return CheckMate;
             }
@@ -505,6 +491,21 @@ class GameController
                 EndGame();
             }
         }
+        if (ValidMove == ValidMove.VALIDMOVE)
+        {
+            foreach (var nextPlayer in _players)
+            {
+                if (nextPlayer.Key != player)
+                {
+                    NextTurn(nextPlayer.Key);
+                }
+                else
+                {
+                    NextTurnOpponent(nextPlayer.Key);
+                }
+            }
+        }
+
         return CheckMate;
     }
     ///<summary>
@@ -762,7 +763,7 @@ class GameController
             {
                 NextTurn(item.Key);
             }
-            else
+            else if (item.Value.PlayerColour == Colour.BLACK)
             {
                 NextTurnOpponent(item.Key);
             }
