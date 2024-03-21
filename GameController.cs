@@ -146,7 +146,7 @@ class GameController
     public bool AssignPlayerColourSet(IPlayer player, Colour colour)
     {
         bool isDifferentColour = false;
-        Colour colourP1 = Colour.WHITE;
+        Colour colourP1 = Colour.NONE;
         if (colour == Colour.WHITE || colour == Colour.BLACK)
         {
             foreach (var item in _players)

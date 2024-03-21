@@ -15,6 +15,7 @@ public enum GameStatus
 
 public enum Colour
 {
+    NONE,
     WHITE,
     BLACK
 }
