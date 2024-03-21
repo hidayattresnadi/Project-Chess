@@ -22,12 +22,30 @@ class GameController
         _players[p1] = new PlayerChessData();
         _players[p2] = new PlayerChessData();
     }
-    public CheckMate CheckMate { get; set; }
+    public CheckMate CheckMate { get; set; } = CheckMate.NONE;
 
     public ValidMove ValidMove { get; set; }
     public GameStatus GameStatus { get; set; } = GameStatus.INIT;
     public Func<Piece, Piece, bool>? PawnPromotionPlayer;
     public Func<Piece, Piece, bool, bool>? KingCastlingPlayer;
+
+    public Action<GameStatus> GameStatusUpdate;
+
+    public void GameStatusUpdate1(GameStatus gameStatus)
+    {
+        if (gameStatus == GameStatus.START)
+        {
+            GameStatus = GameStatus.IN_PROGRESS;
+        }
+        else if (CheckMate == CheckMate.CHECKMATE)
+        {
+            GameStatus = GameStatus.END;
+        }
+        else if (gameStatus == GameStatus.INIT)
+        {
+            GameStatus = GameStatus.START;
+        }
+    }
 
     ///<summary>
     ///method without parameter to check game condition if checkmate happens or not.
@@ -128,16 +146,19 @@ class GameController
     public bool AssignPlayerColourSet(IPlayer player, Colour colour)
     {
         bool isDifferentColour = false;
-        foreach (var item in _players)
+        if (colour == Colour.WHITE || colour == Colour.BLACK)
         {
-            if (item.Key == player)
+            foreach (var item in _players)
             {
-                if (colour != item.Value.PlayerColour)
+                if (item.Key == player)
                 {
-                    _players[player].PlayerColour = colour;
-                    isDifferentColour = true;
-                }
+                    if (colour != item.Value.PlayerColour)
+                    {
+                        _players[player].PlayerColour = colour;
+                        isDifferentColour = true;
+                    }
 
+                }
             }
         }
         return isDifferentColour;
@@ -221,14 +242,14 @@ class GameController
         }
         else
         {
-            dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 0));
-            dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 1));
-            dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 2));
-            dictP1.Add(new Queen(Colour.BLACK, Type.QUEEN), new Location(0, 3));
-            dictP1.Add(new King(Colour.BLACK, Type.KING), new Location(0, 4));
-            dictP1.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 5));
-            dictP1.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 6));
-            dictP1.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 7));
+            dictP2.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 0));
+            dictP2.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 1));
+            dictP2.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 2));
+            dictP2.Add(new Queen(Colour.BLACK, Type.QUEEN), new Location(0, 3));
+            dictP2.Add(new King(Colour.BLACK, Type.KING), new Location(0, 4));
+            dictP2.Add(new Bishop(Colour.BLACK, Type.BISHOP), new Location(0, 5));
+            dictP2.Add(new Knight(Colour.BLACK, Type.KNIGHT), new Location(0, 6));
+            dictP2.Add(new Rook(Colour.BLACK, Type.ROOK), new Location(0, 7));
         }
 
 
@@ -301,9 +322,6 @@ class GameController
         {
             isStart = true;
         }
-        CheckMate = CheckMate.NONE;
-        GameStatus = GameStatus.START;
-        GameStatus = GameStatus.IN_PROGRESS;
         return isStart;
     }
     ///<summary>

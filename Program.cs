@@ -15,7 +15,7 @@ class Program
         IPlayer p1 = new PlayerHuman(name1);
         IPlayer p2 = new PlayerHuman(name2);
 
-        Console.WriteLine("please set board input :");
+        Console.WriteLine("please set board input, format is int size int rows int columns :");
         string? inputBoardSize = Console.ReadLine();
         string[] parts = inputBoardSize.Split(' ');
         int size = int.Parse(parts[0]);
@@ -64,6 +64,8 @@ class Program
         gc.AssignPlayerPiece(p1, p2);
         // start game 
         gc.StartGame();
+        gc.GameStatusUpdate += gc.GameStatusUpdate1;
+        gc.GameStatusUpdate.Invoke(gc.GameStatus);
         for (int row = 0; row < gc.Board.Rows; row++)
         {
             for (int col = 0; col < gc.Board.Columns; col++)
@@ -72,6 +74,7 @@ class Program
             }
             Console.WriteLine();
         }
+        gc.GameStatusUpdate.Invoke(gc.GameStatus);
 
         while (gc.GameStatus == GameStatus.IN_PROGRESS)
         {
