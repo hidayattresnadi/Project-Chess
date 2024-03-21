@@ -10,26 +10,37 @@ using System.Diagnostics;
 
 class GameController
 {
-    public IBoardChess Board { get; set; }
+    public IBoard Board { get; set; }
     private Dictionary<IPlayer, PlayerChessData?> _players;
     public Queue<IPlayer> PlayerTurn { get; private set; } = new();
     private Queue<IPlayer> OpponentTurn = new();
 
-    public GameController(IPlayer p1, IPlayer p2, IBoardChess gameBoard)
+    public GameController(IPlayer p1, IPlayer p2, IBoard gameBoard)
     {
         Board = gameBoard;
         _players = new Dictionary<IPlayer, PlayerChessData?>();
         _players[p1] = new PlayerChessData();
         _players[p2] = new PlayerChessData();
     }
-    public CheckMate CheckMate { get; set; } = CheckMate.NONE;
+    private CheckMate CheckMate = CheckMate.NONE;
 
-    public ValidMove ValidMove { get; set; }
+    private ValidMove ValidMove;
     public GameStatus GameStatus { get; set; } = GameStatus.INIT;
     public Func<Piece, Piece, bool>? PawnPromotionPlayer;
     public Func<Piece, Piece, bool, bool>? KingCastlingPlayer;
 
     public Action<GameStatus> GameStatusUpdate;
+
+    ///<summary>
+    ///method without parameter to see if player set the right move to piece
+    ///</summary>
+    /// <returns>
+    /// ValidMove for the movement piece of player's move
+    /// </returns>
+
+    public ValidMove GetValidMove(){
+        return ValidMove;
+    }
 
     public void GameStatusUpdate1(GameStatus gameStatus)
     {
@@ -69,7 +80,7 @@ class GameController
             {
                 rowKingOpponent = item.Value.Row;
                 columnKingOpponent = item.Value.Column;
-                kingPlayer = Board[item.Value.Row, item.Value.Column].SearchValidLocations(new Location(item.Value.Row, item.Value.Column), CheckMate, Board);
+                kingPlayer = Board[item.Value.Row, item.Value.Column].SearchValidLocations(new Location(item.Value.Row, item.Value.Column), Board);
                 break;
             }
         }
@@ -87,7 +98,7 @@ class GameController
                 if (item.Key.PieceType != Type.KING)
                 {
                     Location locationKnight = new(item.Value.Row, item.Value.Column);
-                    var playerPiecesMoves = item.Key.SearchValidLocations(locationKnight, CheckMate, Board);
+                    var playerPiecesMoves = item.Key.SearchValidLocations(locationKnight, Board);
                     foreach (Location locationPlayer in playerPiecesMoves)
                     {
                         // if(Board[locationPlayer.Row,locationPlayer.Column].PieceColour==_players[PlayerTurn.Peek()].PlayerColour){
@@ -106,7 +117,7 @@ class GameController
 
             foreach (var item in currentPlayerPieces)
             {
-                var currentPlayerPiecesMoves = item.Key.SearchValidLocations(new Location(item.Value.Row, item.Value.Column), CheckMate, Board);
+                var currentPlayerPiecesMoves = item.Key.SearchValidLocationsCheck(new Location(item.Value.Row, item.Value.Column), Board);
                 foreach (var currentPlayerValidMove in currentPlayerPiecesMoves)
                 {
                     foreach (var locationKingPlayer in kingPlayer)
@@ -146,7 +157,7 @@ class GameController
     public bool AssignPlayerColourSet(IPlayer player, Colour colour)
     {
         bool isDifferentColour = false;
-        Colour colourP1 = Colour.NONE;
+        Colour colourP1 = Colour.WHITE;
         if (colour == Colour.WHITE || colour == Colour.BLACK)
         {
             foreach (var item in _players)
@@ -345,13 +356,13 @@ class GameController
     ///method with 1 parameter to reset board
     ///</summary>
     /// <param name="newBoard">
-    /// IBoardChess from user
+    /// IBoard from user
     /// </param>
     /// <returns>
     /// boolean by validating if new board is exist or not
     /// </returns>
 
-    public bool ResetBoard(IBoardChess newBoard)
+    public bool ResetBoard(IBoard newBoard)
     {
         bool isResetBoard = false;
         if (newBoard != null)
@@ -421,7 +432,7 @@ class GameController
             }
         }
         Location currentLocation = GetLocationOfPiece(piece, piecePlayer);
-        var validMoves = piece.SearchValidLocations(currentLocation, CheckMate, Board);
+        var validMoves = piece.SearchValidLocations(currentLocation, Board);
         return validMoves;
     }
     ///<summary>
@@ -448,7 +459,7 @@ class GameController
         if (piece != null && _players[player].PlayerColour == piece.PieceColour)
         {
             Location currentLocation = GetLocationOfPiece(piece, player);
-            bool canMove = Board.MovePieceToLocation(piece, col, row, currentLocation, CheckMate);
+            bool canMove = Board.MovePieceToLocation(piece, col, row, currentLocation);
 
             if (canMove == true && player.Name == PlayerTurn.Peek().Name)
             {
@@ -474,7 +485,7 @@ class GameController
 
                 //  Metode pengecekan skak
                 Location setNewPieceLocation = new(row, col);
-                var kingCheck = piece.SearchValidLocations(setNewPieceLocation, CheckMate, Board);
+                var kingCheck = piece.SearchValidLocations(setNewPieceLocation, Board);
                 foreach (var validLocationPiece in kingCheck)
                 {
                     var pieceAtLocation = Board[validLocationPiece.Row, validLocationPiece.Column];

@@ -22,7 +22,7 @@ class Program
         int rows = int.Parse(parts[1]);
         int columns = int.Parse(parts[2]);
 
-        IBoardChess boardDefault = new Board(size, rows, columns);
+        IBoard boardDefault = new Board(size, rows, columns);
         GameController gc = new(p1, p2, boardDefault);
         //  Player Select Colour to initiate game
         Console.WriteLine($"Do you want to select colour by yourself or random ? if you want random, type :RANDOM");
@@ -141,17 +141,17 @@ class Program
             int columnPieceMove = int.Parse(pieceMove[1]);
             gc.MovePiece(gc.PlayerTurn.Peek(), gc.Board[rowPiece, columnPiece], columnPieceMove, rowPieceMove);
             Console.Clear();
-            for (int row = 0; row < 8; row++)
+            for (int row = 0; row < gc.Board.Rows; row++)
             {
-                for (int col = 0; col < 8; col++)
+                for (int col = 0; col < gc.Board.Columns; col++)
                 {
                     Console.Write("[" + gc.Board[row, col] + " " + "]");
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine($"Movemet status : {gc.ValidMove}");
-            Console.WriteLine($"Game status : {gc.GameStatus}");
-            Console.WriteLine($"Checkmate status : {gc.CheckMate}");
+            Console.WriteLine($"Movemet status : {gc.GetValidMove()}");
+            Console.WriteLine($"Game status : {gc.GetGameStatus()}");
+            Console.WriteLine($"Checkmate status : {gc.GetCheckMateStatus()}");
             Console.WriteLine($"These are the points for player 1 : {gc.CalculatePlayerMaterial(p1)}");
             Console.WriteLine($"These are the points for player 2 : {gc.CalculatePlayerMaterial(p2)}");
         }
