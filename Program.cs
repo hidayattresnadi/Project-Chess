@@ -42,19 +42,70 @@ class Program
             }
             else
             {
-                Console.WriteLine("Invalid color input. Please enter WHITE or BLACK.");
+                bool isInvalidInput = true;
+                while (isInvalidInput)
+                {
+                    Console.WriteLine("Invalid color input. Please enter WHITE or BLACK.");
+                    Console.WriteLine($"Please select colour {p1.Name} by input WHITE or BLACK");
+                    string inputColourForP1 = Console.ReadLine();
+                    if (Enum.TryParse(inputColourForP1, true, out Colour color1))
+                    {
+                        gc.AssignPlayerColourSet(p1, color1);
+                        Console.WriteLine($"Player color set to: {color1}");
+                        isInvalidInput = false;
+                    }
+                }
             }
 
             Console.WriteLine($"Please select colour {p2.Name} by input WHITE or BLACK");
             string inputColourP2 = Console.ReadLine();
             if (Enum.TryParse(inputColourP2, true, out Colour colorP2))
             {
-                gc.AssignPlayerColourSet(p2, colorP2);
-                Console.WriteLine($"Player color set to: {colorP2}");
+                bool isValid = gc.AssignPlayerColourSet(p2, colorP2);
+                if (isValid)
+                {
+                    gc.AssignPlayerColourSet(p2, colorP2);
+                    Console.WriteLine($"Player color set to: {colorP2}");
+                }
+                else
+                {
+                    bool isInvalidInput = true;
+                    while (isInvalidInput)
+                    {
+                        Console.WriteLine("Duplicate color input. Please enter different color WHITE or BLACK.");
+                        Console.WriteLine($"Please select colour {p2.Name} by input WHITE or BLACK");
+                        string inputColourForP2 = Console.ReadLine();
+                        if (Enum.TryParse(inputColourForP2, true, out Colour color2))
+                        {
+                            if (gc.AssignPlayerColourSet(p2, color2))
+                            {
+                                gc.AssignPlayerColourSet(p2, color2);
+                                Console.WriteLine($"Player color set to: {color2}");
+                                isInvalidInput = false;
+                            }
+                        }
+                    }
+                }
+
             }
             else
             {
-                Console.WriteLine("Invalid color input. Please enter WHITE or BLACK.");
+                bool isInvalidInput = true;
+                while (isInvalidInput)
+                {
+                    Console.WriteLine("Invalid color input. Please enter WHITE or BLACK.");
+                    Console.WriteLine($"Please select colour {p2.Name} by input WHITE or BLACK");
+                    string inputColourForP2 = Console.ReadLine();
+                    if (Enum.TryParse(inputColourForP2, true, out Colour color2))
+                    {
+                         if (gc.AssignPlayerColourSet(p2, color2))
+                            {
+                                gc.AssignPlayerColourSet(p2, color2);
+                                Console.WriteLine($"Player color set to: {color2}");
+                                isInvalidInput = false;
+                            }
+                    }
+                }
             }
         }
 

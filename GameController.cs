@@ -146,19 +146,18 @@ class GameController
     public bool AssignPlayerColourSet(IPlayer player, Colour colour)
     {
         bool isDifferentColour = false;
+        Colour colourP1 = Colour.WHITE;
         if (colour == Colour.WHITE || colour == Colour.BLACK)
         {
             foreach (var item in _players)
             {
-                if (item.Key == player)
+                if (item.Key == player && colourP1!=colour)
                 {
-                    if (colour != item.Value.PlayerColour)
-                    {
-                        _players[player].PlayerColour = colour;
-                        isDifferentColour = true;
-                    }
-
+                      _players[player].PlayerColour = colour;
+                      isDifferentColour = true;
+                      colourP1=colour;
                 }
+                colourP1=item.Value.PlayerColour;
             }
         }
         return isDifferentColour;
