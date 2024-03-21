@@ -10,12 +10,12 @@ using System.Diagnostics;
 
 class GameController
 {
-    public IBoard Board { get; set; }
+    public IBoardChess Board { get; set; }
     private Dictionary<IPlayer, PlayerChessData?> _players;
     public Queue<IPlayer> PlayerTurn { get; private set; } = new();
     private Queue<IPlayer> OpponentTurn = new();
 
-    public GameController(IPlayer p1, IPlayer p2, IBoard gameBoard)
+    public GameController(IPlayer p1, IPlayer p2, IBoardChess gameBoard)
     {
         Board = gameBoard;
         _players = new Dictionary<IPlayer, PlayerChessData?>();
@@ -345,13 +345,13 @@ class GameController
     ///method with 1 parameter to reset board
     ///</summary>
     /// <param name="newBoard">
-    /// IBoard from user
+    /// IBoardChess from user
     /// </param>
     /// <returns>
     /// boolean by validating if new board is exist or not
     /// </returns>
 
-    public bool ResetBoard(IBoard newBoard)
+    public bool ResetBoard(IBoardChess newBoard)
     {
         bool isResetBoard = false;
         if (newBoard != null)

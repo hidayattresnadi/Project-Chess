@@ -22,7 +22,7 @@ class Program
         int rows = int.Parse(parts[1]);
         int columns = int.Parse(parts[2]);
 
-        IBoard boardDefault = new Board(size, rows, columns);
+        IBoardChess boardDefault = new Board(size, rows, columns);
         GameController gc = new(p1, p2, boardDefault);
         //  Player Select Colour to initiate game
         Console.WriteLine($"Do you want to select colour by yourself or random ? if you want random, type :RANDOM");

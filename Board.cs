@@ -1,7 +1,7 @@
 ///<summary>
 ///Class to save board condition while the game is playing. It shows the list of pieces which are at board
 /// </summary>
-public class Board : IBoard
+public class Board : IBoardChess
 {
     // di board bakal ada 64 kotak yang akan diisi piece, termasuk null piece, di bawah merupakan inisialisasi
     private readonly Piece[,] _piecesOnBoard = new Piece[8, 8];

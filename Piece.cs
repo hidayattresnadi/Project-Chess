@@ -10,7 +10,7 @@ public abstract class Piece
     public Type PieceType { get; set; }
     public bool HasMoved { get; set; } = false;
 
-    public abstract List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board);
+    public abstract List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board);
 }
 
 public class Pawn : Piece
@@ -36,7 +36,7 @@ public class Pawn : Piece
     /// <returns>
     /// List of Location valid moves from pawn piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         List<Location> validLocations = new();
         int direction = PieceColour == Colour.BLACK ? 1 : -1;
@@ -106,7 +106,7 @@ public class Rook : Piece
     /// <returns>
     /// List of Location valid moves from rook piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
@@ -246,7 +246,7 @@ public class Bishop : Piece
     /// <returns>
     /// List of Location valid moves from bishop piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
@@ -405,7 +405,7 @@ public class Knight : Piece
     /// <returns>
     /// List of Location valid moves from knight piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
@@ -465,7 +465,7 @@ public class King : Piece
     /// <returns>
     /// List of Location valid moves from king piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         List<Location> validLocations = new();
@@ -522,7 +522,7 @@ public class Queen : Piece
     /// <returns>
     /// List of Location valid moves from queen piece
     /// </returns>
-    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoard board)
+    public override List<Location> SearchValidLocations(Location current, CheckMate checkmate, IBoardChess board)
     {
         Colour opponentTurnColor = this.PieceColour==Colour.BLACK? Colour.WHITE : Colour.BLACK;
         // Console.WriteLine("masuk");
